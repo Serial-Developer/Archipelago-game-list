@@ -1,0 +1,29 @@
+@import 'tailwindcss';
+
+/* Palette dark-only : le site n'a pas de thème clair, l'esthétique suit
+   celle d'Archipelago / Discord. */
+@theme {
+  --color-fond: #12131a;
+  --color-fond-2: #171922;
+  --color-fond-3: #1c1e28;
+  --color-puits: #0d0e14;
+  --color-bord: #2a2d3a;
+  --color-bord-2: #333747;
+  --color-texte: #dfe1ea;
+  --color-doux: #8b90a8;
+  --color-faible: #575c73;
+
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  background: var(--color-fond);
+  color: var(--color-texte);
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
