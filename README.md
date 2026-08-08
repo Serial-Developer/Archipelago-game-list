@@ -53,6 +53,16 @@ Il faut que **Settings → Pages → Source** soit réglé sur **GitHub Actions*
 
 ## Pipeline de données
 
+Deux façons de le lancer :
+
+- **En CI** — workflow `.github/workflows/update-data.yml`, déclenché à la main
+  depuis l'onglet Actions. C'est la seule voie qui a accès au secret
+  `GOOGLE_SHEETS_API_KEY` : un secret n'est lisible que par un workflow qui le
+  réclame. Il commite `public/data/` si les données ont changé, puis relance le
+  déploiement. Le cron quotidien viendra au jalon 7.
+- **En local** — `npm run fetch-data`, qui bascule sur le repli xlsx si aucune
+  clé n'est présente dans `.env.local`.
+
 `scripts/fetch-data.ts` lit le Google Sheet et écrit deux fichiers versionnés :
 
 - `public/data/games.json` — le tableau des jeux, typé par `Game` dans `src/types.ts`
