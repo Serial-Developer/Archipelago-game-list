@@ -7,15 +7,20 @@
     "dev": "vite",
     "build": "vue-tsc --build && vite build",
     "preview": "vite preview",
-    "typecheck": "vue-tsc --build"
+    "typecheck": "vue-tsc --build",
+    "test": "vitest run",
+    "fetch-data": "tsx --env-file-if-exists=.env.local scripts/fetch-data.ts"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.11",
     "@types/node": "^26.1.2",
     "@vitejs/plugin-vue": "^6.0.0",
+    "exceljs": "^4.4.0",
     "tailwindcss": "^4.1.11",
+    "tsx": "^4.23.11",
     "typescript": "~5.8.3",
     "vite": "^7.0.0",
+    "vitest": "^4.1.10",
     "vue-tsc": "^3.0.0"
   },
   "dependencies": {
