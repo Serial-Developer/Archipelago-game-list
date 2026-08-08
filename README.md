@@ -8,13 +8,12 @@ Site : https://serial-developer.github.io/Archipelago-game-list/
 
 ## État actuel
 
-Jalon 1 livré : squelette du site + déploiement continu sur GitHub Pages.
-La page d'accueil est un placeholder — **aucune donnée de jeu n'est encore affichée**,
-le pipeline de récupération n'existe pas à ce stade.
+Jalons 1 et 2 livrés : squelette du site déployé sur GitHub Pages, et pipeline de
+données produisant `public/data/games.json` (743 jeux). La page d'accueil reste un
+placeholder — **le front ne lit pas encore ce JSON**.
 
 Suite prévue :
 
-2. Pipeline `scripts/fetch-data.ts` : Sheets API v4 → `public/data/games.json` + tests
 3. UI liste : cartes, badges de statut, recherche, filtres, tris
 4. Page détail (`/#/game/:id`)
 5. Enrichissement jaquettes Steam + `data/steam-mapping.json`
@@ -38,26 +37,78 @@ npm run dev
 
 Autres scripts :
 
-| Commande            | Effet                                        |
-| ------------------- | -------------------------------------------- |
-| `npm run build`     | `vue-tsc --build` puis build Vite vers `dist/` |
-| `npm run typecheck` | Vérification des types seule                 |
-| `npm run preview`   | Sert le build de `dist/` en local            |
+| Commande             | Effet                                          |
+| -------------------- | ---------------------------------------------- |
+| `npm run build`      | `vue-tsc --build` puis build Vite vers `dist/`  |
+| `npm run typecheck`  | Vérification des types seule                   |
+| `npm test`           | Tests Vitest du pipeline (parsing, ids, liens)  |
+| `npm run fetch-data` | Régénère `public/data/games.json` et `meta.json` |
+| `npm run preview`    | Sert le build de `dist/` en local              |
 
 ## Déploiement
 
-Le workflow `.github/workflows/deploy.yml` construit et publie sur GitHub Pages
-à chaque push sur `main`, ainsi qu'à la demande (`workflow_dispatch`).
+Le workflow `.github/workflows/deploy.yml` teste, construit et publie sur GitHub
+Pages à chaque push sur `main`, ainsi qu'à la demande (`workflow_dispatch`).
 Il faut que **Settings → Pages → Source** soit réglé sur **GitHub Actions**.
+
+## Pipeline de données
+
+`scripts/fetch-data.ts` lit le Google Sheet et écrit deux fichiers versionnés :
+
+- `public/data/games.json` — le tableau des jeux, typé par `Game` dans `src/types.ts`
+- `public/data/meta.json` — date du snapshot, mode de récupération, compteurs, et
+  définitions officielles des colonnes (`columnHelp`)
+
+### Deux sources, une seule structure
+
+Les deux voies produisent la même structure neutre (`scripts/lib/raw.ts`), ce qui
+permet de tester le parsing sans réseau.
+
+| Voie                                | Quand                            | Fidélité |
+| ----------------------------------- | -------------------------------- | -------- |
+| **Sheets API v4** (`sheets-api.ts`) | `GOOGLE_SHEETS_API_KEY` définie  | Complète : tous les liens de chaque cellule, plus les info-bulles d'en-tête |
+| **Export xlsx** (`xlsx.ts`)         | Repli, sans clé                  | Dégradée : **un seul lien par cellule**, et `columnHelp` reste vide |
+
+La dégradation vient du format lui-même : une cellule « APWorld, Poptracker »
+porte deux hyperliens que le xlsx ne sait pas stocker, et exceljs ne parvient pas
+à extraire le texte des commentaires d'un export Google. `meta.fetchMode`
+enregistre laquelle des deux voies a produit le snapshot.
+
+### Colonnes lues
+
+L'en-tête est localisée dynamiquement (elle se déplace au gré des éditions) et
+les colonnes sont retrouvées par libellé, jamais par position.
+
+- **Playable Worlds** (662 jeux) : `Game`, `Stability`, `PR Status`,
+  `18+ / Unrated`, `Links & Downloads`, `Setup Guides`, `Support`,
+  `Disclosures`, `Notes`
+- **Core-Verified Worlds** (81 jeux) : `Game`, `Game Page`, `Setup Guide`,
+  `Discord Channel`
+
+L'onglet « Tools, Meta Games, & Hint Games » est hors périmètre en V1.
+
+### Garde-fous
+
+Le script échoue sans rien écrire — donc sans jamais publier un JSON appauvri — si :
+
+- le sheet est inaccessible ou un onglet attendu a disparu ;
+- la ligne d'en-tête est introuvable ou une colonne obligatoire manque ;
+- le parsing ne rend aucun jeu ;
+- le nombre de jeux tombe sous 80 % du snapshot précédent.
+
+Les anomalies non bloquantes (stabilité inconnue, drapeau 18+ illisible) sont
+signalées sur la sortie d'erreur et **ne sont jamais devinées** : le champ reste
+vide, sauf pour le drapeau 18+ où le doute masque le jeu par précaution.
 
 ## Secrets
 
-| Secret                  | Utilisé par                | État                                        |
-| ----------------------- | -------------------------- | ------------------------------------------- |
-| `GOOGLE_SHEETS_API_KEY` | pipeline de données (jalon 2) | Pas encore nécessaire — à créer avant le jalon 2 |
+| Secret                  | Utilisé par         | État                                                    |
+| ----------------------- | ------------------- | ------------------------------------------------------- |
+| `GOOGLE_SHEETS_API_KEY` | `npm run fetch-data` | Optionnel : sans elle, le pipeline bascule sur le repli xlsx |
 
 Aucun appel Google n'est fait depuis le navigateur : la clé reste côté GitHub
-Actions, le client ne lit que le JSON statique produit par le pipeline.
+Actions, le client ne lit que le JSON statique produit par le pipeline. En local,
+poser la clé dans un fichier `.env.local` (déjà ignoré par git) suffit.
 
 ## Principe de données
 
