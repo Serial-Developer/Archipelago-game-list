@@ -1,11 +1,21 @@
 {
-  "fetchedAt": "2026-08-08T08:42:05.238Z",
-  "fetchMode": "xlsx",
+  "fetchedAt": "2026-08-08T08:53:31.019Z",
+  "fetchMode": "sheets-api",
   "spreadsheetId": "1iuzDTOAvdoNe8Ne8i461qGNucg5OuEoF-Ikqs8aUQZw",
   "counts": {
     "total": 743,
     "community": 662,
     "core": 81
   },
-  "columnHelp": {}
+  "columnHelp": {
+    "name": "Sorted alphabetically, with games in the same series put next to each other in series order.",
+    "stability": "- Stable: Should be completely playable without major issues/workarounds. The host probably won't encounter much in the way of issues.\nCriteria for stable includes no common generation failures, no common accessibility issues, the client doesn't have issues that may require the host to use /send_location, and other similar ideas.\n\n- Unstable: Playable, but there's enough issues that the host should be prepared for problems.\n\n- Broken in Main: Not playable in the current version of Archipelago without a modified client and/or APWorld.\n\nNote: It is difficult to keep up with when a game should be moved from Unstable to Stable. Please feel free to change the tag from Unstable to Stable if you feel it meets the above description for Stable. Someone else will move it to the proper position on the list after validating it.",
+    "prStatus": "- Merged: Will be in the next version of Archipelago.\n\n- In Review: Attempting to get merged into Archipelago main. \n\n- Not PRing: The developer has explicitly decided not to PR the world to the Core repository, for any number of reasons. (This means the game will not be merged, i.e. it will never be available via the website)",
+    "adult": "Not allowed on the main discord due to 18+ or Unrated\n age rating. See the After Dark discord for the game's channel.",
+    "downloads": "Sometimes, the APWorld is used as the Client, and sometimes the Client is in the same place as the APWorld.\n\nIf a Discord link fails, typically that means it is linking to a channel in a Discord you are not a part of. For most Discord links here, they will be in the Archipelago Discord.",
+    "setup": "Links to guides generally can be found in the github repo that also hosts the apworld, however sometimes documentation is found elsewhere.",
+    "support": "Links to where the implementation is discussed and where you can find support.",
+    "disclosure": "By popular demand, the relationship a project has with LLM, generative AI, as has been publicly disclosed, is shared on this sheet.\n\n- Unknown: No remarks of any kind point toward the relationship with AI.\n- None: AI has not been utilized in any way for this project.\n- Consulted: AI has been used in some passive way; asked questions, analyzed bugs, etc.\n- Minor: AI has been utilized in this project. \"Minor\" indicates that the project is \"more human-made than not\".\n- Major: AI has been utilized in this project. \"Major\" indicates that the project is \"more AI-made than not\". \n\nThis is not a purity test.\nIncidental uses such as seeing search engine AI summaries, stumbling upon AI articles, etc. or using tools that are debatably AI such as an IDE line autocomplete, will not be counted as \"AI use\". AI generated content is everywhere and nearly unavoidable.\n\nSome of the Archipelago libs have AI in them, which is effectively unavoidable for most developers. Some game mod libraries have AI in them. Archipelago itself likely has or will have some small amount of AI in it. These are all cases where AI is effectively unavoidable.\n\nThe intent of this tag is to communicate intentional use of AI to aid in the production of a project.",
+    "notes": "Any notes that don't fit in the other columns"
+  }
 }
