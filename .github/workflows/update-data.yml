@@ -1,0 +1,60 @@
+name: Mise à jour des données
+
+# Déclenchement manuel pour l'instant. Le cron quotidien, le diff et le
+# CHANGELOG automatique arrivent au jalon 7.
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: update-data
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  # Nécessaire pour relancer le déploiement : un commit poussé avec le
+  # GITHUB_TOKEN ne déclenche pas les workflows sur push, par conception.
+  actions: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Récupération du sheet
+        run: npm run fetch-data
+        env:
+          GOOGLE_SHEETS_API_KEY: ${{ secrets.GOOGLE_SHEETS_API_KEY }}
+
+      - name: Détection des changements
+        id: diff
+        run: |
+          if git diff --quiet -- public/data; then
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+            echo 'Aucun changement dans les données.'
+          else
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+            git diff --stat -- public/data
+          fi
+
+      - name: Commit du snapshot
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/data
+          git commit -m 'Mise à jour du snapshot de données'
+          git push
+
+      - name: Déploiement du site mis à jour
+        if: steps.diff.outputs.changed == 'true'
+        run: gh workflow run deploy.yml --ref main
+        env:
+          GH_TOKEN: ${{ github.token }}
